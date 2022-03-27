@@ -1,42 +1,66 @@
 <template>
   <div>
-    <p>Type into the search bar for searching: </p>
-    <input @keyup.enter="getSearchResults(searchQuery)" v-model="searchQuery"/>
+    <!-- UBB Search -->
+    <div class="d-flex justify-content-center">
+      <h1>UBB Search</h1>
+    </div>
+    <!-- Input -->
+    <div class="input-group">
+      <span class="input-group-prepend">
+        <button
+          class="
+            btn btn-outline-primary
+            bg-white
+            border-start-0 border
+            rounded-pill
+            ms-n3
+          "
+          type="button"
+        >
+          <font-awesome-icon :icon="['fas', 'search']" />
+        </button>
+      </span>
+      <input
+        @keyup.enter="getResultsForQuery(searchQuery)"
+        v-model="searchQuery"
+        class="form-control border-primary rounded-pill"
+        type="text"
+        placeholder="Type here to search"
+        id="example-search-input"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import constants from '../assets/constants.js'
-import axios from 'axios'
+import SolrQueries from "@/utils/SolrQueries.js";
 
 export default {
-  name: 'SearchBar',
-  data() {
-    return {
-        searchQuery: ''
-    }
+  name: "SearchBar",
+  computed: {
+    searchQuery: {
+      get() {
+        return this.$store.state.searchQuery;
+      },
+      set(value) {
+        this.$store.commit("changeSearchQuery", {
+          searchQuery: value,
+        });
+      },
+    },
   },
+  mixins: [SolrQueries],
   methods: {
-    // get results based on typed query
-    getSearchResults(query) {
-      // form url for solr call
-      var baseUrl = constants.SOLR_BASE_URL;
-      var route = 'solr/nutch/query';
-
-      var params = []
-      params.push('q=' + query, 'rq={!ltr%20model=mymodel%20efi.query=' + query + '}', 'fl=url,title,content,[features]', 'indent=off', 'wt=json')
-
-      var url = baseUrl + route + '?' + params.join('&')
-      
-      // make axios call to solr to retrieve search results
-      axios.get(url)
-        .then(response => this.$store.commit("changeDocuments", { docs: response.data.response.docs }) );
-
-      // update the state of the variable indicating if a search has been initatied
-      this.$store.commit("changeHasClickedForSearchTrue", { hasClickedForSearch: true });
-    }
-  }
-}
+    getResultsForQuery(query) {
+      this.getSearchResults(query);
+    },
+    updateSearchQuery(searchQuery) {
+      this.$store.commit("changeSearchQuery", {
+        searchQuery: searchQuery,
+      });
+    },
+  },
+};
 </script>
 
 <style scoped>

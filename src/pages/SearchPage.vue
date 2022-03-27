@@ -6,19 +6,20 @@
 </template>
 
 <script>
-import SearchBar from '../components/SearchBar.vue'
-import SearchResult from '../components/SearchResult.vue'
+import SearchBar from "../components/SearchBar.vue";
+import SearchResult from "../components/SearchResult.vue";
 
 export default {
-    name: 'SearchPage', 
-    components: {
-        SearchBar, SearchResult
-    }
-}
+  name: "SearchPage",
+  components: {
+    SearchBar,
+    SearchResult,
+  },
+};
 </script>
 
 <style scoped>
-.searchPageContainer{
+.searchPageContainer {
   display: block;
   align-items: center;
 }
