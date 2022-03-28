@@ -10,7 +10,7 @@
         <button
           class="
             btn btn-outline-primary
-            bg-white
+            bg-transparent
             border-start-0 border
             rounded-pill
             ms-n3

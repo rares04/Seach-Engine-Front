@@ -14,8 +14,4 @@ export default {
 </script>
 
 <style>
-#app {
-  margin: 0;
-  padding: 0;
-}
 </style>

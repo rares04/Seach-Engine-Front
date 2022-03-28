@@ -1,5 +1,5 @@
 <template>
-  <div class="searchPageContainer">
+  <div class="mx-5 my-3 px-5 py-3">
     <search-bar></search-bar>
     <search-result></search-result>
   </div>
@@ -19,8 +19,4 @@ export default {
 </script>
 
 <style scoped>
-.searchPageContainer {
-  display: block;
-  align-items: center;
-}
 </style>
