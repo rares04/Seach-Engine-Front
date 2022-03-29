@@ -1,15 +1,25 @@
+import vuexConstants from "@/assets/vuexConstants.js";
 import axios from "axios";
 import constants from "../assets/constants.js";
+import helpers from "./helpers.js"
 
 export default {
+  data() {
+    return {
+      solrWithLtr: "solrWithLtr",
+      vanillaSolr: "vanillaSolr"
+    }
+  },
+  mixins: [helpers],
   methods: {
     // get results based on typed query
     getSearchResults(query, page = 1) {
       // form url for solr call
-      var baseUrl = constants.SOLR_BASE_URL;
-      var route = "solr/nutch/query";
-      console.log(constants)
-      var start = (page - 1) * constants.NUM_ROWS_PER_PAGE;
+      const commonParams = this.getCommonParams(page);
+      const baseUrl = commonParams.baseUrl;
+      const route = commonParams.route;
+      const start = commonParams.start;
+
       var params = [];
       params.push(
         "q=" + query,
@@ -18,7 +28,7 @@ export default {
         "start=" + start,
         "rows=" + constants.NUM_ROWS_PER_PAGE,
         "hl=true",
-        "hl.method=unified",
+        "hl.method=original",
         "hl.fl=content",
         "indent=off",
         "wt=json"
@@ -26,62 +36,17 @@ export default {
 
       var url = baseUrl + route + "?" + params.join("&");
 
-      // make axios call to solr to retrieve search results
-      axios.get(url).then((response) => {
-        var docs = response.data.response.docs;
-        var numFound = response.data.response.numFound;
-        docs.forEach((doc) => (doc.isLoading = true));
-
-        // Update the documents in the store
-        this.$store.commit("updateDocuments", {
-          docs: docs,
-          numFound: numFound
-        });
-
-        // Async Get the metadata description for each document trough jsonlink.io
-        docs.forEach(async (doc) => {
-          try {
-            var metadata = await axios.get(
-              "https://jsonlink.io/api/extract?url=" + doc.url
-            );
-
-            // Replace the words from the query with bold
-            var description = metadata.data.description;
-            var words = query.split(" ");
-            words.forEach((word) => {
-              description = description.replaceAll(word, `<b>${word}</b>`);
-            });
-
-            // update the state of the doc -> add description property
-            this.$store.commit("addDescriptionToDocument", {
-              doc: doc,
-              description: description == "" ? description : description + "...",
-            });
-          }
-          catch (error) {
-            // update the state of the doc -> add description property
-            this.$store.commit("addDescriptionToDocument", {
-              doc: doc,
-              description: ""
-            });
-          }
-        });
-
-        // Update the documents in the store
-        this.$store.commit("updateDocuments", {
-          docs: docs,
-          numFound: numFound
-        });
-      });
+      this.getResults(url, this.solrWithLtr)
     },
 
     // get vanilla results based on typed query
     getVanillaSolrSearchResults(query, page = 1) {
       // form url for solr call
-      var baseUrl = constants.SOLR_BASE_URL;
-      var route = "solr/nutch/query";
+      const commonParams = this.getCommonParams(page);
+      const baseUrl = commonParams.baseUrl;
+      const route = commonParams.route;
+      const start = commonParams.start;
 
-      var start = (page - 1) * constants.NUM_ROWS_PER_PAGE;
       var params = [];
       params.push(
         "q=" + query,
@@ -89,7 +54,7 @@ export default {
         "start=" + start,
         "rows=" + constants.NUM_ROWS_PER_PAGE,
         "hl=true",
-        "hl.method=unified",
+        "hl.method=original",
         "hl.fl=content",
         "indent=off",
         "wt=json"
@@ -97,53 +62,57 @@ export default {
 
       var url = baseUrl + route + "?" + params.join("&");
 
+      this.getResults(url, this.vanillaSolr)
+    },
+    
+    getCommonParams(page) {
+      var baseUrl = constants.SOLR_BASE_URL;
+      var route = constants.SOLR_ROUTE;
+
+      var start = (page - 1) * constants.NUM_ROWS_PER_PAGE;
+
+      return { baseUrl, route, start }
+    },
+
+    getResults(url, searchType = this.solrWithLtr) {
       // make axios call to solr to retrieve search results
       axios.get(url).then((response) => {
         var docs = response.data.response.docs;
         var numFound = response.data.response.numFound;
-        docs.forEach((doc) => (doc.isLoading = true));
+        docs = this.getHighlightForEachDoc(docs, response)
 
         // Update the documents in the store
-        this.$store.commit("updateVanillaSolrDocuments", {
-          vanillaSolrDocuments: docs,
-          vanillaSolrNumFound: numFound
-        });
-
-        // Async Get the metadata description for each document trough jsonlink.io
-        docs.forEach(async (doc) => {
-          try {
-            var metadata = await axios.get(
-              "https://jsonlink.io/api/extract?url=" + doc.url
-            );
-
-            // Replace the words from the query with bold
-            var description = metadata.data.description;
-            var words = query.split(" ");
-            words.forEach((word) => {
-              description = description.replaceAll(word, `<b>${word}</b>`);
-            });
-
-            // update the state of the doc -> add description property
-            this.$store.commit("addDescriptionToVanillaSolrDocument", {
-              doc: doc,
-              description: description == "" ? description : description + "...",
-            });
-          }
-          catch (error) {
-            // update the state of the doc -> add description property
-            this.$store.commit("addDescriptionToVanillaSolrDocument", {
-              doc: doc,
-              description: ""
-            });
-          }
-        });
-
-        // Update the documents in the store
-        this.$store.commit("updateVanillaSolrDocuments", {
-          vanillaSolrDocuments: docs,
-          vanillaSolrNumFound: numFound
-        });
+        if (searchType == this.solrWithLtr) {
+          this.$store.commit(vuexConstants.updateDocuments, {
+            docs: docs,
+            numFound: numFound
+          });
+        }
+        else {
+          this.$store.commit(vuexConstants.updateVanillaSolrDocuments, {
+            vanillaSolrDocuments: docs,
+            vanillaSolrNumFound: numFound
+          });
+        }
       });
+    },
+
+    getHighlightForEachDoc(docs, response) {
+      // Get highlight (description)
+      docs.forEach((doc) => {
+        if(this.isEmpty(response.data.highlighting[doc.url])) {
+          doc.description = ""
+        }
+        else {
+          doc.description = response.data.highlighting[doc.url]["content"][0]
+        }
+      });
+      docs.forEach((doc) => {
+        doc.description = doc.description.replaceAll('<em>', '<b>')
+        doc.description = doc.description.replaceAll('</em>', '</b>')
+      })
+
+      return docs
     },
   },
 };

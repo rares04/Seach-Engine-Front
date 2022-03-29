@@ -2,100 +2,30 @@
   <div class="my-4">
     <!-- Results -->
     <div v-if="!isAnyCompareActive">
-      <b-list-group v-for="(doc, index) in documents" :key="index">
-          <b-list-group-item href="{{doc.url}}" class="flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1 text-primary">{{ doc.title }}</h5>
-              <!-- <small class="text-muted">3 days ago</small> -->
-            </div>
-
-            <small class="text-success">{{ doc.url }}</small>
-
-            <!-- <div class="spinner-border text-primary" role="status" v-if="doc.isLoading">
-              <span class="visually-hidden">Loading...</span>
-            </div> -->
-            <p class="mb-1" v-html="displayDescriptionIfPresent(doc)"></p>
-          </b-list-group-item>
-        </b-list-group>
+      <solr-results></solr-results>
     </div>
     <!-- Results if compare with Vanilla Solr-->
-    <div v-if="isCompareWithVanillaSolrClicked" class="row">
+    <div class="row" v-if="isCompareWithVanillaSolrClicked">
       <div class="col">
-        <b-list-group v-for="(doc, index) in documents" :key="index">
-          <b-list-group-item href="{{doc.url}}" class="flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1 text-primary">{{ doc.title }}</h5>
-              <!-- <small class="text-muted">3 days ago</small> -->
-            </div>
-
-            <small class="text-success">{{ doc.url }}</small>
-
-            <!-- <div class="spinner-border text-primary" role="status" v-if="doc.isLoading">
-              <span class="visually-hidden">Loading...</span>
-            </div> -->
-            <p class="mb-1" v-html="displayDescriptionIfPresent(doc)"></p>
-          </b-list-group-item>
-        </b-list-group>
+        <solr-results></solr-results>
       </div>
       <div class="col">
-        <b-list-group v-for="(doc, index) in vanillaSolrDocuments" :key="index">
-          <b-list-group-item href="{{doc.url}}" class="flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1 text-primary">{{ doc.title }}</h5>
-              <!-- <small class="text-muted">3 days ago</small> -->
-            </div>
-
-            <small class="text-success">{{ doc.url }}</small>
-
-            <!-- <div class="spinner-border text-primary" role="status" v-if="doc.isLoading">
-              <span class="visually-hidden">Loading...</span>
-            </div> -->
-            <p class="mb-1" v-html="displayDescriptionIfPresent(doc)"></p>
-          </b-list-group-item>
-        </b-list-group>
+        <vanilla-solr-results></vanilla-solr-results>
       </div>
     </div>
     <!-- Results if compare with Google Search -->
-    <div v-if="isCompareWithGoogleClicked" class="row">
+    <div class="row" v-if="isCompareWithGoogleClicked">
       <div class="col">
-        <b-list-group v-for="(doc, index) in documents" :key="index">
-          <b-list-group-item href="{{doc.url}}" class="flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1 text-primary">{{ doc.title }}</h5>
-              <!-- <small class="text-muted">3 days ago</small> -->
-            </div>
-
-            <small class="text-success">{{ doc.url }}</small>
-
-            <!-- <div class="spinner-border text-primary" role="status" v-if="doc.isLoading">
-              <span class="visually-hidden">Loading...</span>
-            </div> -->
-            <p class="mb-1" v-html="displayDescriptionIfPresent(doc)"></p>
-          </b-list-group-item>
-        </b-list-group>
+        <solr-results></solr-results>
       </div>
       <div class="col">
-        <b-list-group v-for="(doc, index) in googleDocuments" :key="index">
-          <b-list-group-item href="{{doc.url}}" class="flex-column align-items-start">
-            <div class="d-flex w-100 justify-content-between">
-              <h5 class="mb-1 text-primary">{{ doc.title }}</h5>
-              <!-- <small class="text-muted">3 days ago</small> -->
-            </div>
-
-            <small class="text-success">{{ doc.url }}</small>
-
-            <!-- <div class="spinner-border text-primary" role="status" v-if="doc.isLoading">
-              <span class="visually-hidden">Loading...</span>
-            </div> -->
-            <p class="mb-1" v-html="displayDescriptionIfPresent(doc)"></p>
-          </b-list-group-item>
-        </b-list-group>
+        <google-results></google-results>
       </div>
     </div>
 
     <!-- </div> -->
     <div class="absolute-bottom d-flex justify-content-between" v-if="areResultsPresent">
-      <!-- Compare with Vanilla Solr -->
+      <!-- Compare with Vanilla Solr Button -->
       <div class="p-2 vanilla-solr" v-if="!isCompareWithVanillaSolrClicked">
         <button @click="getVanillaSolrResults(this.searchQuery, this.page)" :class="vanillaSolrCompareDisabledClass" class="btn btn-primary">Compare with Vanilla Solr</button>
       </div>
@@ -140,7 +70,7 @@
         </nav>
       </div>
 
-      <!-- Compare with Google -->
+      <!-- Compare with Google Button -->
       <div class="p-2 google" v-if="!isCompareWithGoogleClicked">
         <button @click="getGoogleResults(this.searchQuery, this.page)" :class="googleCompareDisabledClass" class="btn btn-primary">Compare with Google Search</button>
       </div>
@@ -156,9 +86,17 @@ import SolrQueries from "@/utils/SolrQueries.js";
 import GoogleQueries from "@/utils/GoogleQueries.js";
 import { mapState } from "vuex";
 import constants from '@/assets/constants';
+import SolrResults from "./SolrResults.vue";
+import VanillaSolrResults from "./VanillaSolrResults.vue";
+import GoogleResults from "./GoogleResults.vue";
 
 export default {
   name: "SearchResult",
+  components: {
+    SolrResults,
+    VanillaSolrResults,
+    GoogleResults
+  },
   data() {
     return {
       page: 1,
@@ -170,18 +108,21 @@ export default {
   },
   computed: mapState({
     documents: (state) => state.documents,
-    vanillaSolrDocuments: (state) => state.vanillaSolrDocuments,
-    googleDocuments: (state) => state.googleDocuments,
     searchQuery: (state) => state.searchQuery,
     areResultsPresent() {
       return this.documents != null && this.documents.length != 0;
     },
+
     numFound: (state) => state.numFound,
     vanillaSolrNumFound: (state) => state.vanillaSolrNumFound,
+    googleNumFound: (state) => state.googleNumFound,
     maxPage() {
       return Math.ceil(this.numFound / constants.NUM_ROWS_PER_PAGE);
     },
-    
+    googleMaxPage() {
+      return Math.ceil(this.googleNumFound / constants.NUM_ROWS_PER_PAGE);
+    },
+
     isPageLowerThanTwoClass() {
       return {
         'btn': this.page < 2,
@@ -208,9 +149,6 @@ export default {
   }),
   mixins: [SolrQueries, GoogleQueries],
   methods: {
-    displayDescriptionIfPresent(doc) {
-      return doc.isLoading ? "Loading..." : doc.description;
-    },
     isNotAboveMaxPage(page) {
       return page <= this.maxPage;
     },
@@ -227,7 +165,11 @@ export default {
         this.getVanillaSolrSearchResults(query, page)
       }
       if(this.isCompareWithGoogleClicked) {
-        this.getGoogleSearchResults(query, page)
+        var googlePage = page
+        if(page == this.maxPage) {
+          googlePage = this.googleMaxPage
+        }
+        this.getGoogleSearchResults(query, googlePage)
       }
     },
     getVanillaSolrResults(query, page) {

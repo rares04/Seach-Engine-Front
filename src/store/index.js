@@ -42,6 +42,9 @@ export default new Vuex.Store({
     changeDocuments(state, payload) {
       state.documents = payload.docs;
     },
+    changeNumFound(state, payload) {
+      state.numFound = payload.numFound;
+    },
     updateDocuments(state, payload) {
       this.commit('changeDocuments', {
         docs: payload.docs
@@ -50,15 +53,13 @@ export default new Vuex.Store({
         numFound: payload.numFound
       })
     },
-    addDescriptionToDocument(state, payload) {
-      var index = state.documents.findIndex(d => d.url == payload.doc.url)
-      state.documents[index].description = payload.description
-      state.documents[index].isLoading = false
-    },
 
     // Update content of Vanilla Solr Documents
     changeVanillaSolrDocuments(state, payload) {
       state.vanillaSolrDocuments = payload.vanillaSolrDocuments;
+    },
+    changeVanillaSolrNumFound(state, payload) {
+      state.vanillaSolrNumFound = payload.vanillaSolrNumFound;
     },
     updateVanillaSolrDocuments(state, payload) {
       this.commit('changeVanillaSolrDocuments', {
@@ -68,15 +69,13 @@ export default new Vuex.Store({
         vanillaSolrNumFound: payload.vanillaSolrNumFound
       })
     },
-    addDescriptionToVanillaSolrDocument(state, payload) {
-      var index = state.vanillaSolrDocuments.findIndex(d => d.url == payload.doc.url)
-      state.vanillaSolrDocuments[index].description = payload.description
-      state.vanillaSolrDocuments[index].isLoading = false
-    },
 
     // Update content of Google Search Documents
     changeGoogleDocuments(state, payload) {
       state.googleDocuments = payload.googleDocuments;
+    },
+    changeGoogleNumFound(state, payload) {
+      state.googleNumFound = payload.googleNumFound;
     },
     updateGoogleDocuments(state, payload) {
       this.commit('changeGoogleDocuments', {
@@ -85,17 +84,6 @@ export default new Vuex.Store({
       this.commit('changeGoogleNumFound', {
         googleNumFound: payload.googleNumFound
       })
-    },
-
-    // Number of documents found for each type of search (Solr with LTR, Vanilla Solr, Google Search)
-    changeNumFound(state, payload) {
-      state.numFound = payload.numFound;
-    },
-    changeVanillaSolrNumFound(state, payload) {
-      state.vanillaSolrNumFound = payload.vanillaSolrNumFound;
-    },
-    changeGoogleNumFound(state, payload) {
-      state.googleNumFound = payload.googleNumFound;
     },
 
     // The query performed for search

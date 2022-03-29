@@ -34,6 +34,7 @@
 
 <script>
 import SolrQueries from "@/utils/SolrQueries.js";
+import vuexConstants from '@/assets/vuexConstants';
 
 export default {
   name: "SearchBar",
@@ -43,7 +44,7 @@ export default {
         return this.$store.state.searchQuery;
       },
       set(value) {
-        this.$store.commit("changeSearchQuery", {
+        this.$store.commit(vuexConstants.changeSearchQuery, {
           searchQuery: value,
         });
       },
@@ -55,7 +56,7 @@ export default {
       this.getSearchResults(query);
     },
     updateSearchQuery(searchQuery) {
-      this.$store.commit("changeSearchQuery", {
+      this.$store.commit(vuexConstants.changeSearchQuery, {
         searchQuery: searchQuery,
       });
     },

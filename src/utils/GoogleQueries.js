@@ -1,4 +1,5 @@
 import constants from "@/assets/constants"
+import vuexConstants from "@/assets/vuexConstants"
 import axios from "axios"
 
 export default {
@@ -8,11 +9,11 @@ export default {
             const cx = constants.GOOGLE_CX_ID
             const num = constants.NUM_ROWS_PER_PAGE
             const start = (page - 1) * constants.NUM_ROWS_PER_PAGE
-            console.log(page)
+
             var parameters = ["cx=" + cx, "q=" + query, "start=" + start, "num=" + num, "key=" + apiKey]
             parameters = parameters.join("&")
 
-            const url = "https://customsearch.googleapis.com/customsearch/v1?" + parameters
+            const url = constants.GOOGLE_URL + parameters
             axios.get(url).then(response => {
                 const googleNumFound = response.data.searchInformation.totalResults
 
@@ -26,7 +27,7 @@ export default {
                 });
 
                 // Update the documents in the store
-                this.$store.commit("updateGoogleDocuments", {
+                this.$store.commit(vuexConstants.updateGoogleDocuments, {
                     googleDocuments: googleDocuments,
                     googleNumFound: googleNumFound
                 });
