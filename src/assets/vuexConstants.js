@@ -3,4 +3,7 @@ export default Object.freeze({
     updateVanillaSolrDocuments: "updateVanillaSolrDocuments",
     updateGoogleDocuments: "updateGoogleDocuments",
     changeSearchQuery: "changeSearchQuery",  
+    changeIsAnyCompareActive: "changeIsAnyCompareActive",
+    changeIsCompareWithVanillaSolrClicked: "changeIsCompareWithVanillaSolrClicked",
+    changeIsCompareWithGoogleClicked: "changeIsCompareWithGoogleClicked"
 })

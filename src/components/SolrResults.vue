@@ -6,7 +6,7 @@
         <!-- <small class="text-muted">3 days ago</small> -->
       </div>
 
-      <small class="text-success">{{  beautifyUrl(doc.url) }}</small>
+      <small class="text-success">{{ beautifyUrl(doc.url) }}</small>
 
       <!-- <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Loading...</span>

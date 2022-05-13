@@ -11,6 +11,9 @@ export default new Vuex.Store({
     googleNumFound: 0,
 
     searchQuery: "",
+    isAnyCompareActive: false,
+    isCompareWithVanillaSolrClicked: false,
+    isCompareWithGoogleClicked: false, 
   },
   getters: {
     documents: state => {
@@ -36,6 +39,16 @@ export default new Vuex.Store({
     searchQuery: state => {
       return state.searchQuery;
     },
+    isAnyCompareActive: state => {
+      return state.isAnyCompareActive;
+    },
+    isCompareWithVanillaSolrClicked: state => {
+      return state.isCompareWithVanillaSolrClicked;
+    },
+    isCompareWithGoogleClicked: state => {
+      return state.isCompareWithGoogleClicked;
+    },
+
   },
   mutations: {
     // Update content of Solr Documents with LTR enabled
@@ -89,6 +102,15 @@ export default new Vuex.Store({
     // The query performed for search
     changeSearchQuery(state, payload) {
       state.searchQuery = payload.searchQuery;
+    },
+    changeIsAnyCompareActive(state, payload) {
+      state.isAnyCompareActive = payload.isAnyCompareActive;
+    },
+    changeIsCompareWithVanillaSolrClicked(state, payload) {
+      state.isCompareWithVanillaSolrClicked = payload.isCompareWithVanillaSolrClicked;
+    },
+    changeIsCompareWithGoogleClicked(state, payload) {
+      state.isCompareWithGoogleClicked = payload.isCompareWithGoogleClicked;
     },
   },
   actions: { }

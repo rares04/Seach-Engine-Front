@@ -35,10 +35,18 @@
 <script>
 import SolrQueries from "@/utils/SolrQueries.js";
 import vuexConstants from '@/assets/vuexConstants';
+import { mapState } from 'vuex';
+import GoogleQueries from '@/utils/GoogleQueries';
 
 export default {
   name: "SearchBar",
   computed: {
+    ...mapState([
+      'searchQuery',
+      'isAnyCompareActive',
+      'isCompareWithVanillaSolrClicked',
+      'isCompareWithGoogleClicked',
+    ]),
     searchQuery: {
       get() {
         return this.$store.state.searchQuery;
@@ -50,11 +58,30 @@ export default {
       },
     },
   },
-  mixins: [SolrQueries],
+  mixins: [SolrQueries, GoogleQueries],
   methods: {
     getResultsForQuery(query) {
+      // Get Results
       this.getSearchResults(query);
+
+      if(this.isCompareWithVanillaSolrClicked) {
+        this.getVanillaSolrSearchResults(query)
+      }
+      if(this.isCompareWithGoogleClicked) {
+        this.getGoogleSearchResults(query)
+      }
+
+      // this.$store.commit(vuexConstants.changeIsCompareWithVanillaSolrClicked, {
+      //   isCompareWithVanillaSolrClicked: false,
+      // });
+      // this.$store.commit(vuexConstants.changeIsCompareWithGoogleClicked, {
+      //   isCompareWithGoogleClicked: false,
+      // });
+      // this.$store.commit(vuexConstants.changeIsAnyCompareActive, {
+      //   isAnyCompareActive: false,
+      // });      
     },
+
     updateSearchQuery(searchQuery) {
       this.$store.commit(vuexConstants.changeSearchQuery, {
         searchQuery: searchQuery,
