@@ -1,6 +1,11 @@
 <template>
   <b-list-group v-for="(doc, index) in documents" :key="index">
-    <b-list-group-item :href="doc.url" target="_blank" @click="registerClickForDocument(doc)" class="flex-column align-items-start">
+    <b-list-group-item
+      :href="doc.url"
+      target="_blank"
+      @click="registerClickForDocument(doc)"
+      class="flex-column align-items-start"
+    >
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1 text-primary">{{ doc.title }}</h5>
         <!-- <small class="text-muted">3 days ago</small> -->
@@ -17,27 +22,24 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import helpers from '@/utils/helpers.js'
-import clickService from '@/utils/clickService.js'
+import { mapState } from "vuex";
+import helpers from "@/utils/helpers.js";
+import clickService from "@/utils/clickService.js";
 
 export default {
   name: "SolrResults",
   computed: mapState({
     documents: (state) => state.documents,
   }),
-  mixins: [
-    helpers,
-    clickService
-  ],
+  mixins: [helpers, clickService],
   methods: {
     beautifyUrl(url) {
       return this.beautifyUrlDisplay(url);
     },
     async registerClickForDocument(document) {
-      await this.addClickCountForDocument(document)
-    }
-  }
+      await this.addClickCountForDocument(document);
+    },
+  },
 };
 </script>
 

@@ -8,7 +8,13 @@ export default {
             const apiKey = constants.GOOGLE_API_KEY
             const cx = constants.GOOGLE_CX_ID
             const num = constants.NUM_ROWS_PER_PAGE
-            const start = (page - 1) * constants.NUM_ROWS_PER_PAGE
+            var start = 0
+            if (page == 14) {
+                start = 100 - constants.NUM_ROWS_PER_PAGE + 1;
+            }
+            else {
+                start = (page - 1) * constants.NUM_ROWS_PER_PAGE
+            }
 
             var parameters = ["cx=" + cx, "q=" + query, "start=" + start, "num=" + num, "key=" + apiKey]
             parameters = parameters.join("&")

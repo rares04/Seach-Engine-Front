@@ -1,16 +1,16 @@
 <template>
-  <SearchPage/>
+  <SearchPage />
 </template>
 
 <script>
-import SearchPage from './pages/SearchPage.vue'
+import SearchPage from "./pages/SearchPage.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    SearchPage
-  }
-}
+    SearchPage,
+  },
+};
 </script>
 
 <style>

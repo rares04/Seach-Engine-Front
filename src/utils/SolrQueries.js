@@ -1,21 +1,21 @@
+import modelConstants from "@/assets/modelConstants.js";
 import vuexConstants from "@/assets/vuexConstants.js";
 import axios from "axios";
 import constants from "../assets/constants.js";
 import helpers from "./helpers.js"
 
+let solrWithLtr = "solrWithLtr"
+let vanillaSolr = "vanillaSolr"
+
 export default {
-  data() {
-    return {
-      solrWithLtr: "solrWithLtr",
-      vanillaSolr: "vanillaSolr"
-    }
-  },
   mixins: [helpers],
   methods: {
     // get results based on typed query
     getSearchResults(query, page = 1) {
       // form url for solr call
       const commonParams = this.getCommonParams(page);
+      const modelNumber = this.$store.state.selectedModel;
+      const model = this.getModelForRerank(modelNumber)
       const baseUrl = commonParams.baseUrl;
       const route = commonParams.route;
       const start = commonParams.start;
@@ -23,7 +23,7 @@ export default {
       var params = [];
       params.push(
         "q=" + query,
-        "rq={!ltr%20model=my_ranknet_model%20efi.query=" + query + "}",
+        "rq={!ltr%20model=" + model + "%20efi.query=" + query + "}",
         "fl=url,title,content,[features]",
         "start=" + start,
         "rows=" + constants.NUM_ROWS_PER_PAGE,
@@ -36,7 +36,7 @@ export default {
 
       var url = baseUrl + route + "?" + params.join("&");
 
-      this.getResults(url, this.solrWithLtr)
+      this.getResults(url, solrWithLtr)
     },
 
     // get vanilla results based on typed query
@@ -62,9 +62,9 @@ export default {
 
       var url = baseUrl + route + "?" + params.join("&");
 
-      this.getResults(url, this.vanillaSolr)
+      this.getResults(url, vanillaSolr)
     },
-    
+
     getCommonParams(page) {
       var baseUrl = constants.SOLR_BASE_URL;
       var route = constants.SOLR_ROUTE;
@@ -74,7 +74,35 @@ export default {
       return { baseUrl, route, start }
     },
 
-    getResults(url, searchType = this.solrWithLtr) {
+    getModelForRerank(modelNumber) {
+      if (modelNumber == modelConstants.THORSTENS_SVMRANK_VALUE) {
+        return modelConstants.THORSTENS_SVMRANK;
+      }
+
+      else if (modelNumber == modelConstants.SKLEARN_LINEARSVC_VALUE) {
+        return modelConstants.SKLEARN_LINEARSVC;
+      }
+
+      else if (modelNumber == modelConstants.KERAS_RANKNET_VALUE) {
+        return modelConstants.KERAS_RANKNET;
+      }
+
+      else if (modelNumber == modelConstants.TENSORFLOW_RANKNET_VALUE) {
+        return modelConstants.TENSORFLOW_RANKNET;
+      }
+
+      else if (modelNumber == modelConstants.AIRALCORN_RANKNET_VALUE) {
+        return modelConstants.AIRALCORN_RANKNET;
+      }
+
+      else if (modelNumber == modelConstants.FACTORISED_RANKNET_GENERATED_DATA_VALUE) {
+        return modelConstants.FACTORISED_RANKNET_GENERATED_DATA;
+      }
+
+      return modelConstants.THORSTENS_SVMRANK;
+    },
+
+    getResults(url, searchType = solrWithLtr) {
       // make axios call to solr to retrieve search results
       axios.get(url).then((response) => {
         var docs = response.data.response.docs;
@@ -82,7 +110,7 @@ export default {
         docs = this.getHighlightForEachDoc(docs, response)
 
         // Update the documents in the store
-        if (searchType == this.solrWithLtr) {
+        if (searchType == solrWithLtr) {
           this.$store.commit(vuexConstants.updateDocuments, {
             docs: docs,
             numFound: numFound
@@ -100,7 +128,7 @@ export default {
     getHighlightForEachDoc(docs, response) {
       // Get highlight (description)
       docs.forEach((doc) => {
-        if(this.isEmpty(response.data.highlighting[doc.url])) {
+        if (this.isEmpty(response.data.highlighting[doc.url])) {
           doc.description = ""
         }
         else {

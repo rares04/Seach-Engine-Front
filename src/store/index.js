@@ -5,7 +5,7 @@ export default new Vuex.Store({
     documents: [],
     vanillaSolrDocuments: [],
     googleDocuments: [],
-    
+
     numFound: 0,
     vanillaSolrNumFound: 0,
     googleNumFound: 0,
@@ -13,7 +13,9 @@ export default new Vuex.Store({
     searchQuery: "",
     isAnyCompareActive: false,
     isCompareWithVanillaSolrClicked: false,
-    isCompareWithGoogleClicked: false, 
+    isCompareWithGoogleClicked: false,
+
+    selectedModel: "1"
   },
   getters: {
     documents: state => {
@@ -49,6 +51,9 @@ export default new Vuex.Store({
       return state.isCompareWithGoogleClicked;
     },
 
+    selectedModel: state => {
+      return state.selectedModel;
+    }
   },
   mutations: {
     // Update content of Solr Documents with LTR enabled
@@ -112,6 +117,10 @@ export default new Vuex.Store({
     changeIsCompareWithGoogleClicked(state, payload) {
       state.isCompareWithGoogleClicked = payload.isCompareWithGoogleClicked;
     },
+
+    changeSelectedModel(state, payload) {
+      state.selectedModel = payload.selectedModel;
+    }
   },
-  actions: { }
+  actions: {}
 });
